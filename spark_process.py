@@ -43,28 +43,27 @@ logger = logging.getLogger('opentsdb.process')
 
 
 class spark_opentsdb(object):
-	def __init__(self, hostname='localhost', port=4242):
+    def __init__(self, hostname='localhost', port=4242):
         self.hostname = hostname
         self.port = port
         self.sc = None
         self.spark = None
 
-    def spark_init():
-    	from pyspark import SparkContext
-		from pyspark.sql import SQLContext
-		self.sc = SparkContext(appName="OpentSDB data processing")
-		from pyspark.sql import SparkSession
-		self.spark = SparkSession(sc)
+    def spark_init(self):
+	from pyspark import SparkContext
+	#from pyspark.sql import SQLContext
+	self.sc = SparkContext(appName="OpentSDB data processing")
+	from pyspark.sql import SparkSession
+	self.spark = SparkSession(self.sc)
 
     def get_input(self, start_date, end_date, metric, tags):
     	import opentsdb
-    	oc = opentsdb(self.hostname = hostname,self.port)
+    	oc = opentsdb(self.hostname,self.port)
     	oc.put()
 
     def put_data(self, csv):
-
-		df = self.spark.read.format('com.databricks.spark.csv').options(header='true', inferschema='true').load(csv)
-		df.show()
+	df = self.spark.read.format('com.databricks.spark.csv').options(header='true', inferschema='true').load(csv)
+	df.show()
 
 
 
@@ -72,6 +71,6 @@ class spark_opentsdb(object):
 if __name__ == "__main__":
     spark = spark_opentsdb("osl5305",9998)
     spark.spark_init()
-	spark.put_data()
+    spark.put_data("cars.csv")
 
 

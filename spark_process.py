@@ -5,6 +5,7 @@ Concept from:
 Insert spark dataframe to opentsdb 
 Example usage
 --------------
+# /raid5/Spark/spark-2.0.2-bin-hadoop2.7/bin/pyspark --packages com.databricks:spark-csv_2.11:1.5.0 --jars /home/bikaa/repos/opentsdb_spark/lib/spark-csv_2.11-1.5.0.jar spark_process.py
 #$SPARK_HOME/bin/spark-shell --packages com.databricks:spark-csv_2.11:1.5.0
 >>> import opentsdb
 >>> oc = opentsdb()
@@ -31,7 +32,7 @@ import logging.config
 import re
 from json import dumps as tdumps, loads
 import sys, os
-from pyspark.sql import SQLContext
+
 from pyspark.sql.types import *
 
 
@@ -45,8 +46,15 @@ class spark_opentsdb(object):
 	def __init__(self, hostname='localhost', port=4242):
         self.hostname = hostname
         self.port = port
+        self.sc = None
+        self.spark = None
 
     def spark_init():
+    	from pyspark import SparkContext
+		from pyspark.sql import SQLContext
+		self.sc = SparkContext(appName="OpentSDB data processing")
+		from pyspark.sql import SparkSession
+		self.spark = SparkSession(sc)
 
     def get_input(self, start_date, end_date, metric, tags):
     	import opentsdb
@@ -54,9 +62,8 @@ class spark_opentsdb(object):
     	oc.put()
 
     def put_data(self, csv):
-    	from pyspark.sql import SQLContext
-		sqlContext = SQLContext(sc)
-		df = sqlContext.read.format('com.databricks.spark.csv').options(header='true', inferschema='true').load(csv)
+
+		df = self.spark.read.format('com.databricks.spark.csv').options(header='true', inferschema='true').load(csv)
 		df.show()
 
 
